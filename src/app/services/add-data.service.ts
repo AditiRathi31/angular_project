@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class AddDataService {
   private usersSubject = new BehaviorSubject<{ username: string; password: string; confirmPassword: string; role: string }[]>([
-    { username: 'Aditi', password: 'aduu#123', confirmPassword: '1234', role: 'Intern' },
+    { username: 'Aditi', password: 'aduu#123', confirmPassword: 'aduu#123', role: 'Intern' },
   ]);
  
   getUsers() {
@@ -16,6 +16,7 @@ export class AddDataService {
   addUser(user: { username: string; password: string; confirmPassword: string;role: string }): void {
     const currentUsers = this.usersSubject.value;
     this.usersSubject.next([...currentUsers, user]);  
+    
   }
   updateUser(updatedUser: { username: string; password: string; confirmPassword: string; role: string }, index: number) {
     const currentUsers = this.usersSubject.value;

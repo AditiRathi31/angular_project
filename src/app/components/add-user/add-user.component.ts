@@ -1,14 +1,13 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ReactiveFormsModule } from '@angular/forms'; 
+import { FormGroup, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms'; 
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
  
-interface UserDialogData {
+export interface UserDialogData {
   user: {
     username: string;
     password: string;

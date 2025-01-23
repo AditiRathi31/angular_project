@@ -40,7 +40,7 @@ export class HomeComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        if (index !== -1) { 
+        if (index!== -1) { 
           this.upd.updateUser(result,index);
         } else {
           this.upd.addUser(result);
