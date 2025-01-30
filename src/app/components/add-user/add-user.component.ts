@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms'; 
 import { MatInputModule } from '@angular/material/input';
@@ -6,15 +6,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { AddDataService } from '../../services/add-data.service';
+import { MatSnackBar } from '@angular/material/snack-bar'; 
  
 export interface UserDialogData {
-  user: {
+   id:number,
     username: string;
     password: string;
-    confirm_password: string;
-    role: string;
-  },
-  index?: number;   
+    confirmPassword: string;
+    role: string; 
 }
 
 @Component({
@@ -24,27 +24,39 @@ export interface UserDialogData {
   templateUrl: './add-user.component.html',
   styleUrls: ['./add-user.component.css'],
 })
-export class AddUserComponent {
+export class AddUserComponent { 
   userForm: FormGroup;
   isPasswordVisible: boolean = false;
-  isConfirmPasswordVisible: boolean = true;
+  isConfirmPasswordVisible: boolean = true; 
 
   constructor(
     private dialogRef: MatDialogRef<AddUserComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: UserDialogData,   
-    private fb: FormBuilder
+    @Inject(MAT_DIALOG_DATA) public data: UserDialogData,  
+    private fb: FormBuilder,
+    private upd: AddDataService,
+    private snackbar: MatSnackBar
   ) {
     this.userForm = this.fb.group({
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirm_password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
       role: ['', Validators.required]
     });
 
-    if (data) {
-      this.userForm.patchValue(data.user); 
+    if (this.data) {
+      this.userForm.patchValue({
+        username: this.data.username,
+        password: this.data.password,
+        confirmPassword: this.data.confirmPassword,
+        role: this.data.role
+      });
     }
+    
+      
   }
+
+   
+  
 
   togglePasswordVisibility(): void {
     this.isPasswordVisible = !this.isPasswordVisible;
@@ -58,8 +70,16 @@ export class AddUserComponent {
     if (this.userForm.valid) {
       const user = this.userForm.value;
  
-      if (user.password == user.confirm_password) {
-        this.dialogRef.close(user);   
+      if (user.password == user.confirmPassword) {
+        this.upd.addUser(user).subscribe({
+          next : (repsonse)=>{
+              this.dialogRef.close(repsonse);
+          },
+          error:()=>{
+            this.snackbar.open('Failed to add user!!', 'Close', {duration:5000});
+          }
+        });
+        //this.dialogRef.close(user);   
       } else {
         alert('Passwords do not match');
       }

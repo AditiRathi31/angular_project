@@ -1,27 +1,31 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { UserDialogData } from '../components/add-user/add-user.component';
  
 @Injectable({
   providedIn: 'root',
 })
 export class AddDataService {
-  private usersSubject = new BehaviorSubject<{ username: string; password: string; confirmPassword: string; role: string }[]>([
-    { username: 'Aditi', password: 'aduu#123', confirmPassword: 'aduu#123', role: 'Intern' },
-  ]);
  
-  getUsers() {
-    return this.usersSubject.asObservable();  
+  private baseUrl= "http://localhost:8080/api/v1/users";
+  constructor(private httpClient : HttpClient){}
+
+  getUsers() : Observable<UserDialogData[]>{
+    return this.httpClient.get<UserDialogData[]>(`${this.baseUrl}`);
+
   }
- 
-  addUser(user: { username: string; password: string; confirmPassword: string;role: string }): void {
-    const currentUsers = this.usersSubject.value;
-    this.usersSubject.next([...currentUsers, user]);  
-    
+
+  addUser(users: UserDialogData): Observable<UserDialogData>{
+    return this.httpClient.post<UserDialogData>(`${this.baseUrl}`, users);
   }
-  updateUser(updatedUser: { username: string; password: string; confirmPassword: string; role: string }, index: number) {
-    const currentUsers = this.usersSubject.value;
-    currentUsers[index] = updatedUser;  
-    this.usersSubject.next([...currentUsers]);  
+
+  updateUser(user: UserDialogData, id:number) : Observable<UserDialogData>{
+    return this.httpClient.put<UserDialogData>(`${this.baseUrl}/${id}`, user);
+  }
+
+  deleteUser(id: number) : Observable<UserDialogData>{
+    return this.httpClient.delete<UserDialogData>(`${this.baseUrl}/${id}`);
   }
 }
  

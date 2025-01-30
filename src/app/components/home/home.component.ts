@@ -2,8 +2,12 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { AddUserComponent } from '../add-user/add-user.component';
+import { AddUserComponent, UserDialogData } from '../add-user/add-user.component';
 import { AddDataService } from '../../services/add-data.service';
+
+// interface dialogData {
+//   username: string; password: string; confirmPassword: string; role: string
+// }
 
 @Component({
   selector: 'app-home',
@@ -14,10 +18,10 @@ import { AddDataService } from '../../services/add-data.service';
 })
 export class HomeComponent {
   username: string = '';
-  displayedColumns: string[] = ['username', 'password', 'role', 'actions'];
-  user: Array<{ username: string; password: string; confirmPassword: string; role: string }> = [];
-  
-  constructor(private dialog: MatDialog, private upd:AddDataService) {
+  displayedColumns: string[] = ['username', 'password', 'role', 'edit', 'delete'];
+  user: UserDialogData[] = [];
+
+  constructor(private dialog: MatDialog, private upd: AddDataService) {
     const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       this.username = storedUsername;
@@ -25,27 +29,53 @@ export class HomeComponent {
   }
   ngOnInit(): void {
     this.upd.getUsers().subscribe((users) => {
-      this.user = users;   
+      //console.log(users)
+      this.user = users;
     });
   }
-  openAddUserDialog(user: any = null, index: number = -1): void {
+  userDelete(id:number):void{
+      this.upd.deleteUser(id).subscribe({
+        next:()=>{
+          this.upd.getUsers().subscribe({
+            next: (users) => {
+              this.user = users; // Update the user list
+            }
+          
+        });
+      }
+      });
+   }
+   
+  openAddUserDialog(user: UserDialogData | null, id: number = -1): void {
     const dialogRef = this.dialog.open(AddUserComponent, {
       width: '500px',
       height: '500px',
-      data: { 
-        user: user ? {...user } : { username: '', password: '', confirm_password: '', role: '' },
-        index: index,
-      },
+      data: user ? { ...user, id } : { username: '', password: '', confirmPassword: '', role: '', id }
+
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        if (index!== -1) { 
-          this.upd.updateUser(result,index);
-        } else {
-          this.upd.addUser(result);
+        if (id !== -1) {
+          this.upd.updateUser(result,id).subscribe({
+            next:()=>{
+            this.upd.getUsers().subscribe({
+              next: (users) => {
+                console.log(users)
+                this.user = users; // Update the user list
+              }
+            
+          });
         }
-         
+        })
+        } else {
+          //this.upd.addUser(result);
+          this.upd.getUsers().subscribe((users) => {
+            //console.log(users)
+            this.user = users;
+          });
+        }
+
       }
     });
   }
