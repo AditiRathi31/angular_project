@@ -12,9 +12,16 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+    public user loginUser(String username, String password){
+        return  userRepository.findByUsernameAndPassword(username, password).orElse(null);
+
+    }
+
 
     public List<user> getAllUsers() {
         return userRepository.findAll();

@@ -18,6 +18,15 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<user> loginUser(@RequestBody user users){
+        String username = users.getUsername();
+        String pass = users.getPassword();
+        user u= userService.loginUser(username, pass);
+
+        return ResponseEntity.ok(u);
+    }
+
     @GetMapping("/users")
     public List<user> getAllUsers() {
         return userService.getAllUsers();
